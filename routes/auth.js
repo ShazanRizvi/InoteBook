@@ -29,6 +29,7 @@ router.post(
       let user = await User.findOne({ email: req.body.email });
       //Check whether user with the same email exists
       if (user) {
+        success=false;
         return res
           .status(400)
           .json({ error: "Sorry this user already exists" });
@@ -49,7 +50,8 @@ router.post(
         },
       };
       const authtoken = jwt.sign(data, JWT_SECRET);
-      res.json({ authtoken }); //sending user data as json
+      success=true;
+      res.json({ success, authtoken }); //sending user data as json
     } catch (error) {
       console.log(error.message);
       res.status(500).send("Some error occurred");
@@ -83,7 +85,8 @@ router.post(
       //checking for the password is correct where all the hashes are matched automatically by bcrypt
       const passwordCompare =await bcrypt.compare(password, user.password);
       if (!passwordCompare) {
-        return res.status(400).json({ error: "Sorry! wrong credentials" });
+        success=false;
+        return res.status(400).json({success, error: "Sorry! wrong credentials" });
       }
       const payload = {
         user: {
@@ -91,7 +94,8 @@ router.post(
         },
       };
       const authtoken = jwt.sign(payload, JWT_SECRET);
-      res.json({ authtoken }); //sending user data as json
+      success=true;
+      res.json({ success, authtoken }); //sending user data as json
     } catch (error) {
       console.log(error.message);
       res.status(500).send("Internal server error!");
